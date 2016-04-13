@@ -1,1 +1,1 @@
-include ':okioApp', ':okiolibrary'
+include ':okioApp', ':okioLibrary'
