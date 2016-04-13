@@ -19,7 +19,7 @@ android {
 
 
     sourceSets {
-        main.java.srcDirs += '../../../okhttp/src/main/java'
+        main.java.srcDirs += '../../../okio/src/main/java'
     }
 }
 
