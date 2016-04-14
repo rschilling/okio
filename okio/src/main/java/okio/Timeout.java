@@ -40,114 +40,119 @@ import java.util.concurrent.TimeUnit;
  * how much time it spends pre-loading content.
  */
 public class Timeout {
-  /**
-   * An empty timeout that neither tracks nor detects timeouts. Use this when
-   * timeouts aren't necessary, such as in implementations whose operations
-   * do not block.
-   */
-  public static final Timeout NONE = new Timeout() {
-    @Override public Timeout timeout(long timeout, TimeUnit unit) {
-      return this;
-    }
+    /**
+     * An empty timeout that neither tracks nor detects timeouts. Use this when
+     * timeouts aren't necessary, such as in implementations whose operations
+     * do not block.
+     */
+    public static final Timeout NONE = new Timeout() {
+        @Override
+        public Timeout timeout(long timeout, TimeUnit unit) {
+            return this;
+        }
 
-    @Override public Timeout deadlineNanoTime(long deadlineNanoTime) {
-      return this;
-    }
+        @Override
+        public Timeout deadlineNanoTime(long deadlineNanoTime) {
+            return this;
+        }
 
-    @Override public void throwIfReached() throws IOException {
-    }
-  };
+        @Override
+        public void throwIfReached() throws IOException {
+        }
+    };
 
-  /**
-   * The deadline in nanoseconds of the deadline.
-   */
-  private Long deadlineNanoTime;
+    /**
+     * The deadline in nanoseconds of the deadline.
+     */
+    private Long deadlineNanoTime;
 
     /**
      * An arbitrary timeout value that is stored for later use by other objects.
      * Set with calls to {@link #timeout(long, TimeUnit)}.
      */
-  private long timeoutNanos;
+    private long timeoutNanos;
 
-  public Timeout(){}
-
-  /**
-   * Wait at most {@code timeout} time before aborting an operation. Using a
-   * per-operation timeout means that as long as forward progress is being made,
-   * no sequence of operations will fail.
-   *
-   * <p>If {@code timeout == 0}, operations will run indefinitely. (Operating
-   * system timeouts may still apply.)
-   */
-  public Timeout timeout(long timeout, TimeUnit unit) {
-    if (timeout < 0) throw new IllegalArgumentException("timeout < 0: " + timeout);
-    if (unit == null) throw new IllegalArgumentException("unit == null");
-    this.timeoutNanos = unit.toNanos(timeout);
-    return this;
-  }
-
-  /** Returns the timeout in nanoseconds, or {@code 0} for no timeout. */
-  public long timeoutNanos() {
-    return timeoutNanos;
-  }
-
-  /** Returns true if a deadline is enabled. */
-  public boolean hasDeadline() {
-    return (deadlineNanoTime != null);
-  }
-
-  /**
-   * Returns the {@linkplain System#nanoTime() nano time} when the deadline will
-   * be reached.
-   *
-   * @throws IllegalStateException if no deadline is set.
-   */
-  public long deadlineNanoTime() {
-    if (deadlineNanoTime == null) throw new IllegalStateException("No deadline");
-    return deadlineNanoTime;
-  }
-
-  /**
-   * Sets the {@linkplain System#nanoTime() nano time} when the deadline will be
-   * reached. All operations must complete before this time. Use a deadline to
-   * set a maximum bound on the time spent on a sequence of operations.
-   */
-  public Timeout deadlineNanoTime(long deadlineNanoTime) {
-    this.deadlineNanoTime = deadlineNanoTime;
-    return this;
-  }
-
-  /** Set a deadline of now plus {@code duration} time. */
-  public final Timeout deadline(long duration, TimeUnit unit) {
-    if (duration <= 0) throw new IllegalArgumentException("duration <= 0: " + duration);
-    if (unit == null) throw new IllegalArgumentException("unit == null");
-    return deadlineNanoTime(System.nanoTime() + unit.toNanos(duration));
-  }
-
-  /** Clears the timeout. Operating system timeouts may still apply. */
-  public Timeout clearTimeout() {
-    this.timeoutNanos = 0;
-    return this;
-  }
-
-  /** Clears the deadline. */
-  public Timeout clearDeadline() {
-    deadlineNanoTime = null;
-    return this;
-  }
-
-  /**
-   * Throws an {@link InterruptedIOException} if the deadline has been reached or if the current
-   * thread has been interrupted. This method doesn't detect timeouts; that should be implemented to
-   * asynchronously abort an in-progress operation.
-   */
-  public void throwIfReached() throws IOException {
-    if (Thread.interrupted()) {
-      throw new InterruptedIOException("thread interrupted");
+    public Timeout() {
     }
 
-    if ((deadlineNanoTime != null) && (deadlineNanoTime - System.nanoTime() <= 0)) {
-      throw new InterruptedIOException("deadline reached");
+    /**
+     * Wait at most {@code timeout} time before aborting an operation. Using a
+     * per-operation timeout means that as long as forward progress is being made,
+     * no sequence of operations will fail.
+     *
+     * <p>If {@code timeout == 0}, operations will run indefinitely. (Operating
+     * system timeouts may still apply.)
+     */
+    public Timeout timeout(long timeout, TimeUnit unit) {
+        if (timeout < 0) throw new IllegalArgumentException("timeout < 0: " + timeout);
+        if (unit == null) throw new IllegalArgumentException("unit == null");
+        this.timeoutNanos = unit.toNanos(timeout);
+        return this;
     }
-  }
+
+    /** Returns the timeout in nanoseconds, or {@code 0} for no timeout. */
+    public long timeoutNanos() {
+        return timeoutNanos;
+    }
+
+    /** Returns true if a deadline is enabled. */
+    public boolean hasDeadline() {
+        return (deadlineNanoTime != null);
+    }
+
+    /**
+     * Returns the {@linkplain System#nanoTime() nano time} when the deadline will
+     * be reached.
+     *
+     * @throws IllegalStateException if no deadline is set.
+     */
+    public long deadlineNanoTime() {
+        if (deadlineNanoTime == null) throw new IllegalStateException("No deadline");
+        return deadlineNanoTime;
+    }
+
+    /**
+     * Sets the {@linkplain System#nanoTime() nano time} when the deadline will be
+     * reached. All operations must complete before this time. Use a deadline to
+     * set a maximum bound on the time spent on a sequence of operations.
+     */
+    public Timeout deadlineNanoTime(long deadlineNanoTime) {
+        this.deadlineNanoTime = deadlineNanoTime;
+        return this;
+    }
+
+    /** Set a deadline of now plus {@code duration} time. */
+    public final Timeout deadline(long duration, TimeUnit unit) {
+        if (duration <= 0) throw new IllegalArgumentException("duration <= 0: " + duration);
+        if (unit == null) throw new IllegalArgumentException("unit == null");
+        return deadlineNanoTime(System.nanoTime() + unit.toNanos(duration));
+    }
+
+    /** Clears the timeout. Operating system timeouts may still apply. */
+    public Timeout clearTimeout() {
+        this.timeoutNanos = 0;
+        return this;
+    }
+
+    /** Clears the deadline. */
+    public Timeout clearDeadline() {
+        deadlineNanoTime = null;
+        return this;
+    }
+
+    /**
+     * Throws an {@link InterruptedIOException} if the deadline has been reached or if the current
+     * thread has been interrupted. This method doesn't detect timeouts; that should be implemented
+     * to
+     * asynchronously abort an in-progress operation.
+     */
+    public void throwIfReached() throws IOException {
+        if (Thread.interrupted()) {
+            throw new InterruptedIOException("thread interrupted");
+        }
+
+        if ((deadlineNanoTime != null) && (deadlineNanoTime - System.nanoTime() <= 0)) {
+            throw new InterruptedIOException("deadline reached");
+        }
+    }
 }
