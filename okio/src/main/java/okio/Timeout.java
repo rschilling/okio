@@ -63,12 +63,20 @@ public class Timeout {
    * or 0 for {@link System#nanoTime}.
    */
   private boolean hasDeadline;
+
+  /**
+   * The deadline in nanoseconds of the deadline.
+   */
   private long deadlineNanoTime;
+
+    /**
+     * An arbitrary timeout value that is stored for later use by other objects.
+     * Set with calls to {@link #timeout(long, TimeUnit)}.
+     */
   private long timeoutNanos;
 
-  public Timeout() {
-  }
-
+  public Timeout(){}
+    
   /**
    * Wait at most {@code timeout} time before aborting an operation. Using a
    * per-operation timeout means that as long as forward progress is being made,
