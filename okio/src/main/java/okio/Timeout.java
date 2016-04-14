@@ -59,15 +59,9 @@ public class Timeout {
   };
 
   /**
-   * True if {@code deadlineNanoTime} is defined. There is no equivalent to null
-   * or 0 for {@link System#nanoTime}.
-   */
-  private boolean hasDeadline;
-
-  /**
    * The deadline in nanoseconds of the deadline.
    */
-  private long deadlineNanoTime;
+  private Long deadlineNanoTime;
 
     /**
      * An arbitrary timeout value that is stored for later use by other objects.
@@ -76,7 +70,7 @@ public class Timeout {
   private long timeoutNanos;
 
   public Timeout(){}
-    
+
   /**
    * Wait at most {@code timeout} time before aborting an operation. Using a
    * per-operation timeout means that as long as forward progress is being made,
@@ -99,7 +93,7 @@ public class Timeout {
 
   /** Returns true if a deadline is enabled. */
   public boolean hasDeadline() {
-    return hasDeadline;
+    return (deadlineNanoTime != null);
   }
 
   /**
@@ -109,7 +103,7 @@ public class Timeout {
    * @throws IllegalStateException if no deadline is set.
    */
   public long deadlineNanoTime() {
-    if (!hasDeadline) throw new IllegalStateException("No deadline");
+    if (deadlineNanoTime == null) throw new IllegalStateException("No deadline");
     return deadlineNanoTime;
   }
 
@@ -119,7 +113,6 @@ public class Timeout {
    * set a maximum bound on the time spent on a sequence of operations.
    */
   public Timeout deadlineNanoTime(long deadlineNanoTime) {
-    this.hasDeadline = true;
     this.deadlineNanoTime = deadlineNanoTime;
     return this;
   }
@@ -139,7 +132,7 @@ public class Timeout {
 
   /** Clears the deadline. */
   public Timeout clearDeadline() {
-    this.hasDeadline = false;
+    deadlineNanoTime = null;
     return this;
   }
 
@@ -153,7 +146,7 @@ public class Timeout {
       throw new InterruptedIOException("thread interrupted");
     }
 
-    if (hasDeadline && deadlineNanoTime - System.nanoTime() <= 0) {
+    if ((deadlineNanoTime != null) && (deadlineNanoTime - System.nanoTime() <= 0)) {
       throw new InterruptedIOException("deadline reached");
     }
   }
